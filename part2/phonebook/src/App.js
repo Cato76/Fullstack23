@@ -14,9 +14,6 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
 
-  const getSelected = persons.filter((persons)=>(persons.name).includes(filter))
-
-
   const addPerson = (event) => {
     event.preventDefault()
     const personObject = {
@@ -24,10 +21,10 @@ const App = () => {
       number: newNumber
     }
 
-    
-    if(persons.find(person => person.name === newName)){
+
+    if (persons.find(person => person.name === newName)) {
       alert(`${newName} is already added to phonebook`)
-    }else{
+    } else {
       setPersons(persons.concat(personObject))
       setNewName('')
     }
@@ -45,27 +42,18 @@ const App = () => {
     setFilter(event.target.value)
   }
 
-  const addFilter=(event)=>{
-    event.preventDefault()
-  }
-    return (
+  return (
     <div>
       <h1>Phonebook</h1>
-      <form onSubmit={addFilter}>
-         <div>filter by name: <input value={filter} onChange={handleFilterChange} /></div>
-       </form>
+      <FilterForm handleFilterChange={handleFilterChange} filter={filter}/>
       <h2>add a number</h2>
-      <form onSubmit={addPerson}>
-         <div>name: <input value={newName} onChange={handleNameChange} /></div>
-         <div>number: <input value={newNumber} onChange={handleNumberChange} /></div>
-         <div><button type="submit">save</button></div>
-       </form>
+      <SubmitForm addPerson={addPerson}newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange}/>
       <h2>Numbers</h2>
-      {getSelected.map(person=>
-      <Person key={person.name} person={person} />
-      )}
+      <Numbers persons={persons} filter={filter}></Numbers>
     </div>
+
   )
+
 }
 
 const Person = ({ person }) => {
@@ -74,6 +62,42 @@ const Person = ({ person }) => {
   )
 }
 
+const FilterForm =(props) =>{
+
+  const addFilter = (event) => {
+    event.preventDefault()
+  }
+
+return(
+  <form onSubmit={addFilter}>
+  <div>filter by name: <input value={props.filter} onChange={props.handleFilterChange} /></div>
+</form>
+)
+} 
+
+const SubmitForm = (props) =>{
+
+  return(
+    <form onSubmit={props.addPerson}>
+    <div>name: <input value={props.newName} onChange={props.handleNameChange} /></div>
+    <div>number: <input value={props.newNumber} onChange={props.handleNumberChange} /></div>
+    <div><button type="submit">save</button></div>
+  </form>
+  )
+}
+
+
+const Numbers = (props) => {
+  let persons = props.persons
+  let filter = props.filter
+
+  return (
+
+    persons.filter((persons) => (persons.name).includes(filter)).map(person =>
+      <Person key={person.name} person={person} />
+    )
+  )
+}
 
 
 export default App
