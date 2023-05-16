@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import services from './services.js'
+
 
 
 const App = () => {
@@ -17,13 +18,41 @@ const App = () => {
       number: newNumber
     }
 
-
-    if (persons.find(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+    let personExists = persons.find(person => person.name === newName)
+    if (personExists) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        updateThisPerson(personExists, personObject)
+      }
     } else {
-      setPersons(persons.concat(personObject))
-      setNewName('')
+      services.create(personObject)
+        .then(returnedObject => {
+          setPersons(persons.concat(returnedObject))
+          setNewName('')
+          setNewNumber('')
+        })
     }
+  }
+
+  const updateThisPerson = (oldPerson, newPerson) => {
+    services.update(oldPerson.id, newPerson).then(
+      returnedObject => {
+        setPersons(persons.map(person => person.id !== oldPerson.id ? person : returnedObject))
+        setNewName('')
+        setNewNumber('')
+      }
+    )
+  }
+
+  const deleteThisPerson = (person) => {
+    if (window.confirm(`Delete ${person.name}?`)) {
+      let id = person.id
+      services
+        .deletePerson(person.id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+        })
+    }
+
   }
 
 
@@ -39,56 +68,57 @@ const App = () => {
   }
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+    services
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
+
+
 
   return (
     <div>
       <h1>Phonebook</h1>
-      <FilterForm handleFilterChange={handleFilterChange} filter={filter}/>
+      <FilterForm handleFilterChange={handleFilterChange} filter={filter} />
       <h2>add a number</h2>
-      <SubmitForm addPerson={addPerson}newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange}/>
+      <SubmitForm addPerson={addPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <Numbers persons={persons} filter={filter}></Numbers>
+      <Numbers persons={persons} filter={filter} deletePerson={deleteThisPerson}></Numbers>
     </div>
 
   )
 
 }
 
-const Person = ({ person }) => {
+const Person = ({ person, deletePerson }) => {
   return (
-    <li>{person.name} {person.number}</li>
+    <li>{person.name} {person.number} <button onClick={() => deletePerson(person)}>delete</button></li>
   )
 }
 
-const FilterForm =(props) =>{
+
+const FilterForm = (props) => {
 
   const addFilter = (event) => {
     event.preventDefault()
   }
 
-return(
-  <form onSubmit={addFilter}>
-  <div>filter by name: <input value={props.filter} onChange={props.handleFilterChange} /></div>
-</form>
-)
-} 
+  return (
+    <form onSubmit={addFilter}>
+      <div>filter by name: <input value={props.filter} onChange={props.handleFilterChange} /></div>
+    </form>
+  )
+}
 
-const SubmitForm = (props) =>{
+const SubmitForm = (props) => {
 
-  return(
+  return (
     <form onSubmit={props.addPerson}>
-    <div>name: <input value={props.newName} onChange={props.handleNameChange} /></div>
-    <div>number: <input value={props.newNumber} onChange={props.handleNumberChange} /></div>
-    <div><button type="submit">save</button></div>
-  </form>
+      <div>name: <input value={props.newName} onChange={props.handleNameChange} /></div>
+      <div>number: <input value={props.newNumber} onChange={props.handleNumberChange} /></div>
+      <div><button type="submit">save</button></div>
+    </form>
   )
 }
 
@@ -100,7 +130,7 @@ const Numbers = (props) => {
   return (
 
     persons.filter((persons) => (persons.name).includes(filter)).map(person =>
-      <Person key={person.name} person={person} />
+      <Person key={person.name} person={person} deletePerson={props.deletePerson} />
     )
   )
 }
