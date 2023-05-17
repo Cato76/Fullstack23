@@ -5,7 +5,7 @@ const App = (props) => {
 
   const [searchedCountries, setSearchedCountries] = useState([])
   const [filter, setFilter] = useState('')
-  const [weather, setWeather] = useState(0)
+  const [weather, setWeather] = useState([])
 
   const api = process.env.REACT_APP_API_KEY
   const countries = props.countries
@@ -13,7 +13,6 @@ const App = (props) => {
   const handleFilterChange = (event) => {
     setSearchedCountries(countries.filter(country => (country.name.common.toLowerCase()).includes(event.target.value.toLowerCase())))
     setFilter(event.target.value)
-
   }
   const showMore = (countryName) => {
     setSearchedCountries(countries.filter(country => (country.name.common.toLowerCase()).includes(countryName.toLowerCase())))
@@ -51,7 +50,7 @@ const App = (props) => {
         <h3>Capital: {country.capital[0]}</h3>
         <h3>area: {country.area}</h3>
         <img src={country.flags.png} alt="Logo" />
-        <WeatherInfo>weather={weather}</WeatherInfo>
+
 
       </div>
     )
@@ -60,7 +59,7 @@ const App = (props) => {
   const getWeather = (city) => {
     axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${api}&units=metric`).then(response => setWeather(response.data)).catch(() => {
       console.log("weather query failed")
-      setWeather(0)
+      setWeather([])
     })
   }
 
@@ -71,12 +70,14 @@ const App = (props) => {
   }
 
   if (searchedCountries.length === 1) {
-    getWeather()
+    getWeather(searchedCountries[0].capital[0])
+    
     return (
       <div>
         <FilterForm handleFilterChange={handleFilterChange} filter={filter} />
         <ul>
           <CountryDetails key={searchedCountries[0].name.official} country={searchedCountries[0]} />
+          <WeatherInfo weather={weather} />
         </ul>
       </div>
     )
@@ -119,24 +120,25 @@ const FilterForm = (props) => {
   )
 }
 
-const WeatherInfo = (weather) => {
+const WeatherInfo = (props) => {
 
-  if (Array.isArray(weather)) {
+
+  if (props.weather.length !== 0) {
     return (
       <div>
         <h2>Weather information</h2>
-        <h3>wind: {weather?.wind?.speed} m/s</h3>
-        <h3>temparature: {weather?.main?.temp} celsius</h3>
-        <img src={`http://openweathermap.org/img/wn/${weather[0]?.icon}@2x.png`} alt="weather icon" />
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <h3>Weather information is not available</h3>
+        <h3>wind: {props.weather?.wind?.speed} m/s</h3>
+        <h3>temparature: {props.weather?.main?.temp} celsius</h3>
+        <img src={`http://openweathermap.org/img/wn/${props.weather.weather[0]?.icon}@2x.png`} alt="weather icon" />
       </div>
     )
 
+  } else {
+    return (
+      <div>
+        <h2>Weather information not available</h2>
+      </div>
+    )
   }
 }
 
