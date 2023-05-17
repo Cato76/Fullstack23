@@ -15,34 +15,34 @@ const App = (props) => {
     setFilter(event.target.value)
 
   }
-  const showMore=(countryName)=>{
+  const showMore = (countryName) => {
     setSearchedCountries(countries.filter(country => (country.name.common.toLowerCase()).includes(countryName.toLowerCase())))
     setFilter(countryName)
   }
 
-  const Country = ({country }) => {
-  
-    return(
+  const Country = ({ country }) => {
+
+    return (
       <li className="country"> {country.name.common} <button onClick={() => showMore(country.name.common)}>show</button></li>
     )
   }
 
-  const CountryDetails = ({country}) => {
+  const CountryDetails = ({ country }) => {
 
-    const Languages = (country) =>{
+    const Languages = (country) => {
       let languages = []
       for (const property in country.languages) {
         languages.push(country.languages[property])
       }
-  
+
       return (
         <div>
-        {languages.map(
-          language => <ul key={language}>{language}</ul>
-        )}</div>
+          {languages.map(
+            language => <ul key={language}>{language}</ul>
+          )}</div>
       )
     }
-  
+
     return (
       <div>
         <h1>{country.name.official}</h1>
@@ -50,28 +50,33 @@ const App = (props) => {
         <div>{Languages(country)}</div>
         <h3>Capital: {country.capital[0]}</h3>
         <h3>area: {country.area}</h3>
-        <img src={country.flags.png} alt="Logo"/>
-        <WeatherInfo></WeatherInfo>
+        <img src={country.flags.png} alt="Logo" />
+        <WeatherInfo>weather={weather}</WeatherInfo>
 
-        </div>
+      </div>
     )
   }
 
-  const getWeather = (city) =>{axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${api}&units=metric`).then(response => setWeather(response.data)).catch(()=>(console.log("weather query failed")))}
-  
-  const SearchCountries = ({country}) => {
-    return(
-      country.map(coun=> <Country key={coun.name.common} country={coun}/>)
+  const getWeather = (city) => {
+    axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${api}&units=metric`).then(response => setWeather(response.data)).catch(() => {
+      console.log("weather query failed")
+      setWeather(0)
+    })
+  }
+
+  const SearchCountries = ({ country }) => {
+    return (
+      country.map(coun => <Country key={coun.name.common} country={coun} />)
     )
   }
 
-  if (searchedCountries.length ===1) {
+  if (searchedCountries.length === 1) {
     getWeather()
     return (
       <div>
         <FilterForm handleFilterChange={handleFilterChange} filter={filter} />
         <ul>
-        <CountryDetails key={searchedCountries[0].name.official} country={searchedCountries[0]}/>
+          <CountryDetails key={searchedCountries[0].name.official} country={searchedCountries[0]} />
         </ul>
       </div>
     )
@@ -83,9 +88,9 @@ const App = (props) => {
       <div>
 
         <FilterForm handleFilterChange={handleFilterChange} filter={filter} />
-        
-        <SearchCountries country={searchedCountries}/>
-        
+
+        <SearchCountries country={searchedCountries} />
+
       </div>
 
     )
@@ -94,7 +99,7 @@ const App = (props) => {
       <div>
         <FilterForm handleFilterChange={handleFilterChange} filter={filter} />
         <ul>
-        <>Too many many matches, specify another filter</>
+          <>Too many many matches, specify another filter</>
         </ul>
       </div>
     )
@@ -114,25 +119,25 @@ const FilterForm = (props) => {
   )
 }
 
-const WeatherInfo = (weather)=>{
-  
-  if(Array.isArray(weather)){
-  return(
-    <div>
-    <h2>Weather information</h2>
-    <h3>wind: {weather?.wind?.speed} m/s</h3>
-    <h3>temparature: {weather?.main?.temp} celsius</h3>
-    <img src={`http://openweathermap.org/img/wn/${weather[0]?.icon}@2x.png`} alt="weather icon"/>
-    </div>
-  )
-}else{
-  return(
-    <div>
-      <h3>Weather information is not available</h3>
-    </div>
+const WeatherInfo = (weather) => {
+
+  if (Array.isArray(weather)) {
+    return (
+      <div>
+        <h2>Weather information</h2>
+        <h3>wind: {weather?.wind?.speed} m/s</h3>
+        <h3>temparature: {weather?.main?.temp} celsius</h3>
+        <img src={`http://openweathermap.org/img/wn/${weather[0]?.icon}@2x.png`} alt="weather icon" />
+      </div>
+    )
+  } else {
+    return (
+      <div>
+        <h3>Weather information is not available</h3>
+      </div>
     )
 
-}
+  }
 }
 
 
