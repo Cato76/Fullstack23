@@ -13,3 +13,17 @@ content-type: application/json
 {
 
 }
+###
+Post https://part3-azmk.onrender.com/api/persons 
+
+###
+POST https://part3-azmk.onrender.com/api/persons 
+content-type: application/json
+
+{
+    "name": "pertti",
+    "number": "1122"
+}
+
+### 
+get https://part3-azmk.onrender.com/info
