@@ -2,8 +2,39 @@ POST http://localhost:3001/api/persons
 content-type: application/json
 
 {
+    "name": "test1",
+    "number": "tes1"
+}
+
+###
+
+POST http://localhost:3001/api/persons 
+content-type: application/json
+
+{
+    "name": "test2",
+    "number": "test2"
+}
+
+
+###
+
+post http://localhost:3001/api/persons 
+content-type: application/json
+
+{
     "name": "pertti",
     "number": "1122"
+}
+
+###
+
+put http://localhost:3001/api/persons 
+content-type: application/json
+
+{
+    "name": "pertti",
+    "number": "0011"
 }
 
 ###
@@ -13,7 +44,23 @@ content-type: application/json
 {
 
 }
+
 ###
+
+get http://localhost:3001/api/persons 
+
+###
+
+DELETE http://localhost:3001/api/persons/efa
+
+###
+
+DELETE http://localhost:3001/api/persons/325235
+
+### 
+
+
+
 Post https://part3-azmk.onrender.com/api/persons 
 
 ###

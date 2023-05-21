@@ -48,7 +48,7 @@ const App = () => {
           setNewNumber('')
           renderSuccessMessage(`${returnedObject.name} was added successfully`)
         })
-        .catch(()=>renderErrorMessage(`${personObject.name} addition failed`))
+        .catch((error)=>renderErrorMessage(`${error.response.data.error}`))
     }
   }
 
@@ -60,10 +60,16 @@ const App = () => {
         setNewNumber('')
         renderSuccessMessage(`${newPerson.name} was updated successfully`)
       }
-    ).catch((error) =>
-    renderErrorMessage(`${newPerson.name} was already deleted from server`))
-    setPersons(persons.filter(n => n.id !== oldPerson.id))
+    ).catch((error) => {
+      if(error.response.status===404){
+        renderErrorMessage(`${newPerson.name} was already deleted from server`)
+        console.log(error)
+        setPersons(persons.filter(n => n.id !== oldPerson.id))
+      }else{
+        renderErrorMessage(error.response.data.error)
+      }
 
+    })
   }
 
   const deleteThisPerson = (person) => {
