@@ -1,0 +1,18 @@
+GET http://localhost:3001/api/blogs
+
+###
+
+POST http://localhost:3001/api/blogs
+
+
+###
+
+post http://localhost:3001/api/blogs 
+content-type: application/json
+
+{
+    "title": "pertti",
+    "author": "1122",
+    "url": "1122",
+    "likes": "1122"
+}
