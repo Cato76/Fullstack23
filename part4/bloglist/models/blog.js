@@ -16,8 +16,9 @@ const blogSchema = new mongoose.Schema({
   },
 
   likes:{
-    required: true,
-    type: Number
+    type: Number,
+    default: ()=>0,
+    required: true
   },
 })
 
