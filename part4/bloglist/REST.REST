@@ -1,18 +1,49 @@
 GET http://localhost:3001/api/blogs
 
-###
 
-POST http://localhost:3001/api/blogs
+### create user
 
-
-###
-
-post http://localhost:3001/api/blogs 
+post http://localhost:3001/api/users 
 content-type: application/json
 
 {
-    "title": "pertti",
-    "author": "1122",
-    "url": "1122",
-    "likes": "1122"
+    "username": "1122",
+    "password": "5235235253",
+    "name":"ensimmäinen käyttäjä"
 }
+
+### post blog with token
+
+POST http://localhost:3001/api/blogs 
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjExMjIiLCJpZCI6IjY0NzBiY2U3MDNjMzVmYjI4OTlkYTY4NyIsImlhdCI6MTY4NTEzODIwNH0.iyF6rSCjSfNy_ECEaJe58HvYlXhBea8-m_pYtAeO058
+
+{
+"title": "Blog title",
+"author": "author",
+"url": "url",
+"likes": 0
+}
+
+### login
+
+post http://localhost:3001/api/login 
+content-type: application/json
+
+{
+    "username": "1122",
+    "password": "5235235253"
+}
+
+### delete
+
+DELETE http://localhost:3001/api/blogs/6471f67f6746ec9fe3a853ab
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjExMjIiLCJpZCI6IjY0NzBiY2U3MDNjMzVmYjI4OTlkYTY4NyIsImlhdCI6MTY4NTEzODIwNH0.iyF6rSCjSfNy_ECEaJe58HvYlXhBea8-m_pYtAeO058
+
+
+### token 
+
+Post http://localhost:3001/api/blogs/
+Content-Type: application/json
+Authorization: Bearer e.eyJ1c2VybmFtZSI6IjExMjIiLCJpZCI6IjY0NzBiY2U3MDNjMzVmYjI4OTlkYTY4NyIsImlhdCI6MTY4NTEzODIwNH0.iyF6rSCjSfNy_ECEaJe58HvYlXhBea8-m_pYtAeO058

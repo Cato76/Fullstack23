@@ -5,14 +5,44 @@ const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
 
+let token =null
+
 beforeEach(async () => {
+  await User.deleteMany({})
   await Blog.deleteMany({})
   await Blog.insertMany(helper.initialBlogs)
+
+  testUser ={
+    
+      "username": "username",
+      "password": "1234",
+      "name":"ensimmäinen käyttäjä"
+  }
+  regResults = await api.post('/api/users').send(testUser)
+
+  
+
+  login = 
+  {
+    "username": "username",
+    "password": "1234"
+  }
+  
+  results = await api.post('/api/login')
+  .send(login)
+
+  const output = JSON.parse(results.text)
+  
+  token = 'Bearer '+output.token
+  
+  
 })
 
 test('blogs are returned as json', async () => {
+
   await api
     .get('/api/blogs')
     .expect(200)
@@ -46,6 +76,7 @@ test('a blog can be added ', async () => {
   await api
     .post('/api/blogs')
     .send(newBlog)
+    .set('Authorization', token)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
@@ -70,10 +101,10 @@ test('undefined likes will result in default value of 0', async () => {
     author: "Gigantti",
     url: "http://BlogsFromEarth.com",
   }
-
   result = await api
     .post('/api/blogs')
     .send(newBlog)
+    .set('Authorization', token)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
@@ -91,27 +122,45 @@ test('blog without URL will result in code 400', async () => {
   await api
     .post('/api/blogs')
     .send(newBlog)
+    .set('Authorization', token)
     .expect(400)
 
 })
 
 test('a blog can be deleted', async () => {
-  const blogs = await helper.blogsInDB()
-  const blogToDelete = blogs[0]
+  
+
+  const newBlog = {
+    title: "Notes from earth",
+    author: "Gigantti",
+    url: "http://BlogsFromEarth.com",
+    likes: 11
+  }
+
+  const added =await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .set('Authorization', token)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+
+  const blogToDelete=added._body.id
 
   await api
-    .delete(`/api/blogs/${blogToDelete.id}`)
+    .delete(`/api/blogs/${blogToDelete}`)
+    .set('Authorization', token)
     .expect(204)
 
   const blogsAtEnd = await helper.blogsInDB()
 
   expect(blogsAtEnd).toHaveLength(
-    helper.initialBlogs.length - 1
+    helper.initialBlogs.length
   )
 
-  const contents = blogsAtEnd.map(r => r.url)
+  const IDs = blogsAtEnd.map(r => r.id)
 
-  expect(contents).not.toContain(blogToDelete.url)
+  expect(IDs).not.toContain(blogToDelete)
 })
 
 test('a blog can be updated', async () => {
