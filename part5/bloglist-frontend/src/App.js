@@ -1,21 +1,24 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import BlogSubmitForm from './components/BlogSubmitForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import PropTypes from 'prop-types'
 
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
 
   const [user, setUser] = useState()
-  const [password, setPassword] = useState("")
-  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('')
 
-  const [title, setTitle] = useState("")
-  const [author, setAuthor] = useState("")
-  const [url, setUrl] = useState("")
 
   const [info, setInfo] = useState()
+
+  const [blogFormVisibility, setBlogFormVisibility] = useState(false)
+
 
 
 
@@ -29,7 +32,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -41,44 +44,42 @@ const App = () => {
     }
   }, [])
 
- 
-  const submitBlog = (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title : title,
-      author:author,
-      url:url
-    }
-    
+
+  const submitBlog = (blogObject) => {
     blogService
       .create(blogObject)
-        .then(returned => {
-        setBlogs(blogs.concat(returned))
-        renderMessage(`a new blog ${title} by ${author} added`)
-      }).catch(error => {
-        renderMessage(`a blog ${title} by ${author} failed to be added!`)
+      .then(() => {
+        blogService.getAll().then(blogs =>
+          setBlogs( blogs )
+        )
+        renderMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
+        setBlogFormVisibility(false)
+      }).catch( error => {
+        renderMessage(`a blog ${blogObject.title} by ${blogObject.author} failed to be added!`)
+        console.log(error)
       })
-    
+
   }
 
-  
+
 
 
   const loginListener = (event) => {
     event.preventDefault()
 
     if(username.length<4 || password.length<4){
-      return renderMessage("error: login information too short")
+      return renderMessage('error: login information too short')
     }
-    loginService.login({username:username, password:password}).then(user => {
+    loginService.login({ username:username, password:password }).then(user => {
       setUser(user)
-      setUsername("")
-      setPassword("")
-      window.localStorage.setItem("user", JSON.stringify(user))
+      setUsername('')
+      setPassword('')
+      window.localStorage.setItem('user', JSON.stringify(user))
       blogService.setToken(user.token)
-      renderMessage(`Login was successful!`)
+      renderMessage('Login was successful!')
     }).catch(error => {
-      renderMessage("error login")
+      renderMessage('error login')
+      console.log(error)
     })
 
   }
@@ -91,33 +92,25 @@ const App = () => {
     setPassword(event.target.value)
   }
 
-  const handleTitle = (event) =>{
-    setTitle(event.target.value)
-  }
-
-  const handleAuthor = (event) =>{
-    setAuthor(event.target.value)
-  }
-
-  const handleUrl = (event) =>{
-    setUrl(event.target.value)
-  }
-  const logout=()=>{
+  const logout=() => {
     setUser()
     window.localStorage.removeItem('user')
-    renderMessage(`Logged out successfully!`)
+    renderMessage('Logged out successfully!')
 
   }
 
-  
+  const deletion = (blogToDelete) => {
+    setBlogs(blogs.filter(blog => blog!==blogToDelete))
+  }
+
   if(!user){
     return (
       <div>
         <h2>blogs</h2>
         <ErrorNotifcation message={info} />
         <UserForm onSubmit={loginListener} username={username} password={password} handleNameChange={handleNameChange} handlepasswordChange={handlepasswordChange}/>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+        {blogs.sort((a,b) => {return b.likes-a.likes}).map(blog =>
+          <Blog key={blog.id} blog={blog}/>
         )}
       </div>
     )
@@ -128,9 +121,18 @@ const App = () => {
         <>{user.name} logged in</>
         <button onClick={() => logout()}>logout</button>
         <ErrorNotifcation message={info} />
-        <BlogSubmitForm onSubmit={submitBlog} title={title} handleTitle={handleTitle} author={author} handleAuthor={handleAuthor} url={url} handleUrl={handleUrl}/>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+        {!blogFormVisibility &&
+        <button onClick={() => setBlogFormVisibility(true)}>create blog</button>}
+        <div>
+          {blogFormVisibility &&
+        <div>
+          <BlogSubmitForm submitBlog={submitBlog} setBlogFormVisibility={setBlogFormVisibility}/>
+          <button onClick={() => setBlogFormVisibility(false)}>cancel</button>
+        </div>
+          }</div>
+
+        {blogs.sort((a,b) => {return b.likes-a.likes}).map(blog =>
+          <Blog key={blog.id} blog={blog} deletion={deletion} user={user}/>
         )}
       </div>
     )
@@ -138,32 +140,31 @@ const App = () => {
 
 }
 
-const UserForm = ({username, password, handleNameChange, handlepasswordChange, onSubmit}) => {
+const UserForm = ({ username, password, handleNameChange, handlepasswordChange, onSubmit }) => {
+
+  UserForm.propTypes = {
+    username: PropTypes.string.isRequired,
+    password:PropTypes.string.isRequired,
+    handleNameChange:PropTypes.func.isRequired,
+    handlepasswordChange:PropTypes.func.isRequired,
+    onSubmit:PropTypes.func.isRequired,
+  }
 
   return (
     <form onSubmit={onSubmit}>
       <div className="submitUser">Username: <input value={username} onChange={handleNameChange} />
       Password: <input value={password} onChange={handlepasswordChange} />
-      <button type="submit">save</button>
+        <button type="submit">login</button>
       </div>
     </form>
   )
 }
 
-const BlogSubmitForm = ({onSubmit, title, handleTitle, author, handleAuthor, url, handleUrl}) => {
-
-  return (
-    <form onSubmit={onSubmit}>
-      <h2>create new</h2>
-      <div className="submitUser">title: <input value={title} onChange={handleTitle} />
-      author: <input value={author} onChange={handleAuthor} />
-      url: <input value={url} onChange={handleUrl} />
-      <button type="submit">create</button></div>
-    </form>
-  )
-}
 
 const ErrorNotifcation = ({ message }) => {
+  ErrorNotifcation.propTypes = {
+    message: PropTypes.string,
+  }
   if (message === null) {
     return null
   }
