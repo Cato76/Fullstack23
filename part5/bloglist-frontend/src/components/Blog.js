@@ -4,7 +4,7 @@ import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
 
 
-const Blog = ({ blog, deletion, user }) => {
+const Blog = ({ blog, deletion, user, updateLikes }) => {
 
   const [showMore, setShowMore] = useState(false)
 
@@ -13,14 +13,20 @@ const Blog = ({ blog, deletion, user }) => {
   Blog.propTypes = {
     blog: PropTypes.object.isRequired,
     deletion:PropTypes.func,
-    user:PropTypes.object
+    user:PropTypes.object,
+    updateLikes:PropTypes.func
   }
 
 
   const like =() => {
-    blog.likes=likes+1
-    blogService.put(blog)
-    setLikes(likes+1)
+    //lazy fix for exerc. 5.15
+    if(updateLikes){
+      return updateLikes()
+    }else{
+      blog.likes=likes+1
+      blogService.put(blog)
+      setLikes(likes+1)
+    }
   }
 
 
