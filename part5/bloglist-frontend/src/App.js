@@ -122,7 +122,7 @@ const App = () => {
         <button onClick={() => logout()}>logout</button>
         <ErrorNotifcation message={info} />
         {!blogFormVisibility &&
-        <button onClick={() => setBlogFormVisibility(true)}>create blog</button>}
+        <button onClick={() => setBlogFormVisibility(true)} id={'create blog'}>create blog</button>}
         <div>
           {blogFormVisibility &&
         <div>
@@ -152,9 +152,9 @@ const UserForm = ({ username, password, handleNameChange, handlepasswordChange, 
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="submitUser">Username: <input value={username} onChange={handleNameChange} />
-      Password: <input value={password} onChange={handlepasswordChange} />
-        <button type="submit">login</button>
+      <div className="submitUser">Username: <input value={username} onChange={handleNameChange} id={'username'} />
+      Password: <input value={password} onChange={handlepasswordChange} id={'password'} />
+        <button id={'login-button'} type="submit" >login</button>
       </div>
     </form>
   )

@@ -39,7 +39,7 @@ const Blog = ({ blog, deletion, user, updateLikes }) => {
   if(showMore===false){
     return(
       <div>
-        {blog.title} <button onClick={() => setShowMore(true)}>show more</button>
+        {blog.title} <button onClick={() => setShowMore(true)} id={showMore}>show more</button>
 
       </div>
     )
