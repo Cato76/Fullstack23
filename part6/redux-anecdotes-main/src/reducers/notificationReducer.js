@@ -5,7 +5,6 @@ import { createSlice } from '@reduxjs/toolkit'
     initialState: null,
     reducers: {
       setNotification(state, action) {
-        console.log(action.payload)
         return action.payload
       }
     },

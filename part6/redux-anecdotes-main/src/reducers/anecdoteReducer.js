@@ -1,3 +1,4 @@
+import { createSlice } from '@reduxjs/toolkit'
 
 const anecdotesAtStart = [
   'If it hurts, do it more often',
@@ -17,25 +18,20 @@ const asObject = (anecdote) => {
     votes: 0
   }
 }
-
-export const createAnecdote = (anecdote) => ({type: 'CREATE', payload:{anecdote}})
-export const vote = (id) => {
-  return({type: 'VOTE', payload:{id:id}})}
-
 const initialState = anecdotesAtStart.map(asObject)
 
-const reducer = (state = initialState, action) => {
+const anecdoteSlice = createSlice({
+  name: 'filter',
+  initialState,
+  reducers: {
+    vote(state, action) {
+      return state.map(anecdote => anecdote.id === action.payload ? { ...anecdote, votes: anecdote.votes+1 } : anecdote).sort((a, b) => b.votes - a.votes);
+    },
+    create(state, action) {
+      return [...state, asObject(action.payload) ]
+    }
+  },
+})
 
-  switch (action.type){
-    case 'VOTE':
-      return state.map(anecdote => anecdote.id === action.payload.id ? { ...anecdote, votes: anecdote.votes+1 } : anecdote).sort((a, b) => b.votes - a.votes);
-
-    case 'CREATE':
-      console.log(action.anecdote)
-      return [...state, asObject(action.payload.anecdote) ]
-    default:
-      return state
-  }
-}
-
-export default reducer
+export const { vote, create } = anecdoteSlice.actions
+export default anecdoteSlice.reducer
