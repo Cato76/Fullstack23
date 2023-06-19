@@ -19,7 +19,8 @@ const asObject = (anecdote) => {
 }
 
 export const createAnecdote = (anecdote) => ({type: 'CREATE', payload:{anecdote}})
-export const vote = (id) => ({type: 'VOTE', payload:{id:id}})
+export const vote = (id) => {
+  return({type: 'VOTE', payload:{id:id}})}
 
 const initialState = anecdotesAtStart.map(asObject)
 
