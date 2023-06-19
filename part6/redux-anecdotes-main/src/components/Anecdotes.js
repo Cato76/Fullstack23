@@ -16,8 +16,9 @@ const AnecdotesList = () => {
             dispatch(setNotification(null))
         }, 5000);
     }
-
+    console.log(anecdotes)
     return (
+       
         <>
         {
             anecdotes.filter((anecdotes)=>(anecdotes.content).includes(filter)).map(anecdote =>
