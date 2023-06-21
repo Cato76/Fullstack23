@@ -2,28 +2,32 @@ import ReactDOM from 'react-dom/client'
 import { useState } from 'react'
 
 import {
-  BrowserRouter as Router,
-  Routes, Route, Link
-} from 'react-router-dom'
+  Routes,
+  Route,
+  Link,
+  useMatch, 
+  useNavigate 
+} from "react-router-dom"
 
-const Menu = () => {
-  const padding = {
-    paddingRight: 5
-  }
+const Anecdote = ({anecdote}) => {
+
   return (
     <div>
-      <a href='#' style={padding}>anecdotes</a>
-      <a href='#' style={padding}>create new</a>
-      <a href='#' style={padding}>about</a>
+      <h2>Anecdote</h2>
+      <p>{anecdote.content}</p>
     </div>
   )
 }
 
-const AnecdoteList = ({ anecdotes }) => (
+const AnecdoteList = ({ anecdotes, notification }) => (
   <div>
+    {notification}
     <h2>Anecdotes</h2>
     <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} >{anecdote.content}</li>)}
+      {anecdotes.map(anecdote => 
+      <li key={anecdote.id} > 
+        <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link>
+      </li>)}
     </ul>
   </div>
 )
@@ -107,11 +111,22 @@ const App = () => {
     }
   ])
 
-  const [notification, setNotification] = useState('')
+  const [notification, setNotification] = useState("")
+
+  const navigate = useNavigate()
 
   const addNew = (anecdote) => {
+    
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
+    navigate("/");
+
+    setNotification(`"${anecdote.content}" was created!`)
+
+    setTimeout(() => {
+      setNotification("")
+    }, 5000);
+
   }
 
   const anecdoteById = (id) =>
@@ -128,13 +143,19 @@ const App = () => {
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
 
+  const match = useMatch('/anecdotes/:id')
+
+  const anecdote = match
+  ? anecdotes.find(post => post.id === Number(match.params.id))    
+  : null
+
   const padding = {
     padding: 5
   }
 
   return (
     <div>
-    <Router>
+    
       <div>
         <Link style={padding} to="/">Anecdotes </Link>
         <Link style={padding} to="/about">about </Link>
@@ -144,26 +165,15 @@ const App = () => {
 
       <Routes>
         <Route path="/new" element={<CreateNew addNew={addNew} />} />
-        <Route path="/" element={<AnecdoteList anecdotes={anecdotes}/>} />
+        <Route path="/" element={<AnecdoteList anecdotes={anecdotes} notification={notification}/>} />
+        <Route path="/anecdotes/:id" element={<Anecdote anecdote={anecdote}/>}/>
         <Route path="/about" element={<About />} />
       </Routes>
-    </Router>
+    
       <div>
         <Footer />
       </div>
     </div>
   )
-
-  return (
-    <div>
-      <h1>Software anecdotes</h1>
-      <Menu />
-      <AnecdoteList anecdotes={anecdotes} />
-      <About />
-      <CreateNew addNew={addNew} />
-      <Footer />
-    </div>
-  )
 }
-
 export default App
